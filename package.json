@@ -1,0 +1,15 @@
+{
+  "name": "draw-together",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellow-umbrella/draw-together.git"
+  },
+  "homepage": "https://github.com/yellow-umbrella/draw-together#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "socket.io": "^4.5.2"
+  }
+}
