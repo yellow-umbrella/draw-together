@@ -13,7 +13,8 @@ function setup() {
     }
     socket.emit('room', path);
     socket.on('path', (data) => {
-        window.location.pathname = data;
+        window.history.pushState({}, "", 
+        window.location.protocol + '//' + window.location.host + data);
     })
     socket.on('canvas', (lines) => {
         lines.forEach(line => {
