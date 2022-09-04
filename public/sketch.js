@@ -15,6 +15,11 @@ function setup() {
     socket.on('path', (data) => {
         window.location.pathname = data;
     })
+    socket.on('canvas', (lines) => {
+        lines.forEach(line => {
+            newDrawing(line);
+        });
+    })
 }
 
 let prevCoord = null;
