@@ -3,24 +3,25 @@ let UI = {};
 let picture = {};
 
 function setup() {
-    initPicture();
     initUI();
+    initPicture();
     initSockets();
 }
 
 function initPicture() {
     picture.canvas = createCanvas(700, 700);
-    picture.background = 51;
-    background(picture.background);
     picture.prevCoord = null;
+    background(UI.backgroundClrPicker.value);
 }
 
 function initUI() {
-    UI.colorPicker = document.getElementById('colorPicker');
+    UI.backgroundClrPicker = document.getElementById('backgroundColor');
+    UI.brushClrPicker = document.getElementById('colorPicker');
     UI.widthSlider = document.getElementById('widthSlider');
     UI.clearAllButton = document.getElementById('clearAll');
     UI.brush = document.getElementById('brush');
     UI.clearAllButton.onclick = clearAll;
+    UI.backgroundClrPicker.addEventListener("change", updateBackground, false);
 }
 
 function initSockets() {
@@ -38,21 +39,28 @@ function initSockets() {
         window.location.protocol + '//' + window.location.host + data);
     });
 
-    socket.on('canvas', (lines) => {
-        console.log("recieved lines");
-        lines.forEach(line => {
+    socket.on('canvas', (data) => {
+        if (data.background != null) {
+            background(data.background);
+            UI.backgroundClrPicker.value = data.background;
+        }
+        data.lines.forEach(line => {
             newDrawing(line);
         });
     });
 
     socket.on('clearAll', () => {
-        background(picture.background);
+        background(UI.backgroundClrPicker.value);
     })
 }
 
 function clearAll() {
-    background(picture.background);
+    background(UI.backgroundClrPicker.value);
     socket.emit('clearAll');
+}
+
+function updateBackground() {
+    socket.emit("background", UI.backgroundClrPicker.value);
 }
 
 function mouseReleased() {
@@ -69,7 +77,7 @@ function mouseDragged() {
     }
 
     let data = {
-        color: UI.brush.checked?colorPicker.value:null,
+        color: UI.brush.checked?UI.brushClrPicker.value:null,
         width: widthSlider.value,
         start: {
             x: picture.prevCoord.x,
@@ -92,7 +100,7 @@ function mouseDragged() {
 
 function newDrawing(data) {
     if (data.color === null) {
-        stroke(picture.background);
+        stroke(UI.backgroundClrPicker.value);
     } else {
         stroke(data.color);
     }

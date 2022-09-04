@@ -25,7 +25,8 @@ function newConnection(socket) {
             roomId = crypto.randomBytes(9).toString('base64');
             rooms.set(roomId, {
                 users: new Set([socket.id]),
-                lines: new Array()
+                lines: new Array(),
+                background: null
             });
             socket.join(roomId);
             socket.emit('path', "/" + roomId);
@@ -37,7 +38,8 @@ function newConnection(socket) {
             socket.join(roomId);
             console.log(socket.id + " connected to " + roomId 
             + " with " + rooms.get(roomId).users.size + " users");
-            socket.emit('canvas', rooms.get(roomId).lines);
+            socket.emit('canvas', {lines: rooms.get(roomId).lines,
+                                 background: rooms.get(roomId).background});
             console.log('sent lines');
         }
         console.log('rooms: ' + rooms.size);
@@ -67,6 +69,15 @@ function newConnection(socket) {
             rooms.get(roomId).lines = [];
         }
         socket.to(roomId).emit('clearAll');
+    })
+
+    socket.on('background', (data) => {
+        console.log('background changed');
+        if (rooms.has(roomId)) {
+            rooms.get(roomId).background = data;
+        }
+        io.to(roomId).emit('canvas', {lines: rooms.get(roomId).lines,
+                        background: data});
     })
 
 }
