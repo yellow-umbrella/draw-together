@@ -6,6 +6,15 @@ function setup() {
 
     socket = io.connect('http://localhost:3000');
     socket.on('mouse', newDrawing);
+
+    let path = window.location.pathname;
+    if (path.length > 0) {
+        path = path.slice(1);
+    }
+    socket.emit('room', path);
+    socket.on('path', (data) => {
+        window.location.pathname = data;
+    })
 }
 
 let prevCoord = null;
