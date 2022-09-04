@@ -1,7 +1,7 @@
 let socket;
 
 function setup() {
-    createCanvas(200, 200);
+    createCanvas(700, 700);
     background(51); 
 
     socket = io.connect('http://localhost:3000');
