@@ -11,27 +11,36 @@ let socket = require('socket.io');
 let io = socket(server);
 io.sockets.on('connection', newConnection);
 
+let crypto = require("crypto");
+
+
 const rooms = new Map();
 
 function newConnection(socket) {
     let roomId = socket.id;
     console.log('new connection: ' + socket.id);
+
     socket.on('room', (data) => {
         if (!rooms.has(data)) {
-            roomId = socket.id;
+            roomId = crypto.randomBytes(9).toString('base64');
             rooms.set(roomId, {
                 users: new Set([socket.id]),
                 lines: new Array()
             });
+            socket.join(roomId);
             socket.emit('path', "/" + roomId);
+            console.log(socket.id + " connected to " + roomId 
+            + " with " + rooms.get(roomId).users.size + " users");
         } else {
             roomId = data;
             rooms.get(roomId).users.add(socket.id);
             socket.join(roomId);
-            console.log(socket.id + " connected to " + roomId);
+            console.log(socket.id + " connected to " + roomId 
+            + " with " + rooms.get(roomId).users.size + " users");
             socket.emit('canvas', rooms.get(roomId).lines);
             console.log('sent lines');
         }
+        console.log('rooms: ' + rooms.size);
     });
 
     socket.on('disconnecting', () => {
@@ -53,6 +62,4 @@ function newConnection(socket) {
         socket.to(roomId).emit("mouse", data);
     });
 
-    console.log('rooms: ' + rooms.size);
 }
-// Test heroku
