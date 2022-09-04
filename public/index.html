@@ -1,15 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-      <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"></script>
-      <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
-      <script src="sketch.js"></script>
-  <title>Page Title</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"></script>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+  <script src="sketch.js"></script>
+  <title>Draw Together</title>
 </head>
 <body>
+  <h1>Draw Together</h1>
+  <p>Draw and have fun with friends</p>
 
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+  <div>
+    <label for="colorPicker">Brush color:</label>
+    <input type="color" id="colorPicker" value="#ffffff">
+    
+    <label for="backgroundColor">Background color:</label>
+    <input type="color" id="backgroundColor" value="#333333">
+  </div>
+
+  <div>
+    <label for="widthSlider">Brush width:</label>
+    <input type="range" min="1" max="10" id="widthSlider">
+  </div>
+
+  <div>
+    <button id="clearAll">clear canvas</button>
+    <input type="radio" id="brush" name="tool" value="brush" checked>
+    <label for="brush">brush</label>
+    <input type="radio" id="eraser" name="tool" value="eraser">
+    <label for="eraser">eraser</label>
+  </div>
 
 </body>
 </html>

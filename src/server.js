@@ -11,25 +11,38 @@ let socket = require('socket.io');
 let io = socket(server);
 io.sockets.on('connection', newConnection);
 
+let crypto = require("crypto");
+
+
 const rooms = new Map();
 
 function newConnection(socket) {
     let roomId = socket.id;
+    console.log('new connection: ' + socket.id);
 
     socket.on('room', (data) => {
         if (!rooms.has(data)) {
-            roomId = socket.id;
+            roomId = crypto.randomBytes(9).toString('base64');
             rooms.set(roomId, {
                 users: new Set([socket.id]),
-                lines: new Array()
+                lines: new Array(),
+                background: null
             });
+            socket.join(roomId);
             socket.emit('path', "/" + roomId);
+            console.log(socket.id + " connected to " + roomId 
+            + " with " + rooms.get(roomId).users.size + " users");
         } else {
             roomId = data;
             rooms.get(roomId).users.add(socket.id);
             socket.join(roomId);
-            socket.emit('canvas', rooms.get(roomId).lines);
+            console.log(socket.id + " connected to " + roomId 
+            + " with " + rooms.get(roomId).users.size + " users");
+            socket.emit('canvas', {lines: rooms.get(roomId).lines,
+                                 background: rooms.get(roomId).background});
+            console.log('sent lines');
         }
+        console.log('rooms: ' + rooms.size);
     });
 
     socket.on('disconnecting', () => {
@@ -43,13 +56,28 @@ function newConnection(socket) {
         console.log('rooms: ' + rooms.size);
     });
 
-    console.log('new connection: ' + socket.id + ' ' + roomId);
     // receiving info about new line from client and sending it to all other clients
-    socket.on('mouse', (data) => {
-        rooms.get(roomId).lines.push(data);
-        socket.to(roomId).emit("mouse", data);
+    socket.on('draw', (data) => {
+        if (rooms.has(roomId)) {
+            rooms.get(roomId).lines.push(data);
+        }
+        socket.to(roomId).emit("draw", data);
     });
 
-    console.log('rooms: ' + rooms.size);
+    socket.on('clearAll', () => {
+        if (rooms.has(roomId)) {
+            rooms.get(roomId).lines = [];
+        }
+        socket.to(roomId).emit('clearAll');
+    })
+
+    socket.on('background', (data) => {
+        console.log('background changed');
+        if (rooms.has(roomId)) {
+            rooms.get(roomId).background = data;
+        }
+        io.to(roomId).emit('canvas', {lines: rooms.get(roomId).lines,
+                        background: data});
+    })
+
 }
-// Test heroku
