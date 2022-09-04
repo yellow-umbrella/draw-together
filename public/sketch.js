@@ -1,8 +1,14 @@
 let socket;
+let canvas;
+let colorPicker;
+let widthSlider;
 
 function setup() {
-    createCanvas(700, 700);
+    canvas = createCanvas(700, 700);
     background(51);
+    
+    colorPicker = document.getElementById('colorPicker');
+    widthSlider = document.getElementById('widthSlider');
 
     socket = io.connect(window.location.host);
     socket.on('mouse', newDrawing);
@@ -17,6 +23,7 @@ function setup() {
         window.location.protocol + '//' + window.location.host + data);
     })
     socket.on('canvas', (lines) => {
+        console.log("recieved lines");
         lines.forEach(line => {
             newDrawing(line);
         });
@@ -39,6 +46,8 @@ function mouseDragged() {
     }
 
     let data = {
+        color: colorPicker.value,
+        width: widthSlider.value,
         start: {
             x: prevCoord.x,
             y: prevCoord.y
@@ -59,7 +68,7 @@ function mouseDragged() {
 }
 
 function newDrawing(data) {
-    stroke(255);
-    strokeWeight(5);
+    stroke(data.color);
+    strokeWeight(data.width);
     line(data.start.x, data.start.y, data.end.x, data.end.y); 
 }

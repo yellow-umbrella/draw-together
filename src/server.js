@@ -15,7 +15,7 @@ const rooms = new Map();
 
 function newConnection(socket) {
     let roomId = socket.id;
-
+    console.log('new connection: ' + socket.id);
     socket.on('room', (data) => {
         if (!rooms.has(data)) {
             roomId = socket.id;
@@ -28,7 +28,9 @@ function newConnection(socket) {
             roomId = data;
             rooms.get(roomId).users.add(socket.id);
             socket.join(roomId);
+            console.log(socket.id + " connected to " + roomId);
             socket.emit('canvas', rooms.get(roomId).lines);
+            console.log('sent lines');
         }
     });
 
@@ -43,10 +45,11 @@ function newConnection(socket) {
         console.log('rooms: ' + rooms.size);
     });
 
-    console.log('new connection: ' + socket.id + ' ' + roomId);
     // receiving info about new line from client and sending it to all other clients
     socket.on('mouse', (data) => {
-        rooms.get(roomId).lines.push(data);
+        if (rooms.has(roomId)) {
+            rooms.get(roomId).lines.push(data);
+        }
         socket.to(roomId).emit("mouse", data);
     });
 
