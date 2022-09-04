@@ -4,7 +4,7 @@ function setup() {
     createCanvas(700, 700);
     background(51);
 
-    socket = io.connect('0.0.0.0:3000');
+    socket = io.connect(window.location.host);
     socket.on('mouse', newDrawing);
 
     let path = window.location.pathname;
