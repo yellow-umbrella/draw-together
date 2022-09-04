@@ -1,56 +1,79 @@
 let socket;
-let canvas;
-let colorPicker;
-let widthSlider;
+let UI = {};
+let picture = {};
 
 function setup() {
-    canvas = createCanvas(700, 700);
-    background(51);
-    
-    colorPicker = document.getElementById('colorPicker');
-    widthSlider = document.getElementById('widthSlider');
+    initPicture();
+    initUI();
+    initSockets();
+}
 
+function initPicture() {
+    picture.canvas = createCanvas(700, 700);
+    picture.background = 51;
+    background(picture.background);
+    picture.prevCoord = null;
+}
+
+function initUI() {
+    UI.colorPicker = document.getElementById('colorPicker');
+    UI.widthSlider = document.getElementById('widthSlider');
+    UI.clearAllButton = document.getElementById('clearAll');
+    UI.brush = document.getElementById('brush');
+    UI.clearAllButton.onclick = clearAll;
+}
+
+function initSockets() {
     socket = io.connect(window.location.host);
-    socket.on('mouse', newDrawing);
+    socket.on('draw', newDrawing);
 
     let path = window.location.pathname;
     if (path.length > 0) {
         path = path.slice(1);
     }
     socket.emit('room', path);
+
     socket.on('path', (data) => {
         window.history.pushState({}, "", 
         window.location.protocol + '//' + window.location.host + data);
-    })
+    });
+
     socket.on('canvas', (lines) => {
         console.log("recieved lines");
         lines.forEach(line => {
             newDrawing(line);
         });
+    });
+
+    socket.on('clearAll', () => {
+        background(picture.background);
     })
 }
 
-let prevCoord = null;
+function clearAll() {
+    background(picture.background);
+    socket.emit('clearAll');
+}
 
 function mouseReleased() {
-    prevCoord = null;
+    picture.prevCoord = null;
 }
 
 function mouseDragged() {
     // save the coordinates when user starts to draw
-    if (prevCoord === null) {
-        prevCoord = {
+    if (picture.prevCoord === null) {
+        picture.prevCoord = {
             x: mouseX,
             y: mouseY
         }
     }
 
     let data = {
-        color: colorPicker.value,
+        color: UI.brush.checked?colorPicker.value:null,
         width: widthSlider.value,
         start: {
-            x: prevCoord.x,
-            y: prevCoord.y
+            x: picture.prevCoord.x,
+            y: picture.prevCoord.y
         },
         end: {
             x: mouseX,
@@ -59,16 +82,20 @@ function mouseDragged() {
     }
     
     newDrawing(data);
-    socket.emit('mouse', data);
+    socket.emit('draw', data);
 
-    prevCoord = {
+    picture.prevCoord = {
         x: mouseX,
         y: mouseY
     }
 }
 
 function newDrawing(data) {
-    stroke(data.color);
+    if (data.color === null) {
+        stroke(picture.background);
+    } else {
+        stroke(data.color);
+    }
     strokeWeight(data.width);
     line(data.start.x, data.start.y, data.end.x, data.end.y); 
 }

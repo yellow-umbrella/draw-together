@@ -55,11 +55,18 @@ function newConnection(socket) {
     });
 
     // receiving info about new line from client and sending it to all other clients
-    socket.on('mouse', (data) => {
+    socket.on('draw', (data) => {
         if (rooms.has(roomId)) {
             rooms.get(roomId).lines.push(data);
         }
-        socket.to(roomId).emit("mouse", data);
+        socket.to(roomId).emit("draw", data);
     });
+
+    socket.on('clearAll', () => {
+        if (rooms.has(roomId)) {
+            rooms.get(roomId).lines = [];
+        }
+        socket.to(roomId).emit('clearAll');
+    })
 
 }
