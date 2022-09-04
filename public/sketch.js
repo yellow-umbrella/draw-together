@@ -2,9 +2,9 @@ let socket;
 
 function setup() {
     createCanvas(700, 700);
-    background(51); 
+    background(51);
 
-    socket = io.connect('http://localhost:3000');
+    socket = io.connect('0.0.0.0:3000');
     socket.on('mouse', newDrawing);
 
     let path = window.location.pathname;
