@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
-    "start": "node ./src/server.js"
+    "start": "node ./src/server.js",
+    "fmt": "prettier --write public/*.js src/*.js",
+    "check": "prettier --check public/*.js src/*.js"
+  },
+  "prettier": {
+    "tabWidth": 4,
+    "singleQuote": true,
+    "bracketSpacing": true
   },
   "repository": {
     "type": "git",
@@ -15,5 +22,8 @@
     "express": "^4.18.1",
     "googleapis": "^105.0.0",
     "socket.io": "^4.5.2"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
   }
 }
