@@ -21,7 +21,7 @@ function initUI() {
     UI.clearAllButton = document.getElementById('clearAll');
     UI.brush = document.getElementById('brush');
     UI.clearAllButton.onclick = clearAll;
-    UI.backgroundClrPicker.addEventListener("change", updateBackground, false);
+    UI.backgroundClrPicker.addEventListener('change', updateBackground, false);
 }
 
 function initSockets() {
@@ -35,8 +35,8 @@ function initSockets() {
     socket.emit('room', path);
 
     socket.on('path', (data) => {
-        window.history.pushState({}, "", 
-        window.location.protocol + '//' + window.location.host + data);
+        let url = `${window.location.protocol}//${window.location.host}${data}`;
+        window.history.pushState({}, '', url);
     });
 
     socket.on('canvas', (data) => {
@@ -44,14 +44,14 @@ function initSockets() {
             background(data.background);
             UI.backgroundClrPicker.value = data.background;
         }
-        data.lines.forEach(line => {
+        data.lines.forEach((line) => {
             newDrawing(line);
         });
     });
 
     socket.on('clearAll', () => {
         background(UI.backgroundClrPicker.value);
-    })
+    });
 }
 
 function clearAll() {
@@ -60,7 +60,7 @@ function clearAll() {
 }
 
 function updateBackground() {
-    socket.emit("background", UI.backgroundClrPicker.value);
+    socket.emit('background', UI.backgroundClrPicker.value);
 }
 
 function mouseReleased() {
@@ -72,30 +72,30 @@ function mouseDragged() {
     if (picture.prevCoord === null) {
         picture.prevCoord = {
             x: mouseX,
-            y: mouseY
-        }
+            y: mouseY,
+        };
     }
 
     let data = {
-        color: UI.brush.checked?UI.brushClrPicker.value:null,
+        color: UI.brush.checked ? UI.brushClrPicker.value : null,
         width: widthSlider.value,
         start: {
             x: picture.prevCoord.x,
-            y: picture.prevCoord.y
+            y: picture.prevCoord.y,
         },
         end: {
             x: mouseX,
-            y: mouseY
-        }
-    }
-    
+            y: mouseY,
+        },
+    };
+
     newDrawing(data);
     socket.emit('draw', data);
 
     picture.prevCoord = {
         x: mouseX,
-        y: mouseY
-    }
+        y: mouseY,
+    };
 }
 
 function newDrawing(data) {
@@ -105,5 +105,5 @@ function newDrawing(data) {
         stroke(data.color);
     }
     strokeWeight(data.width);
-    line(data.start.x, data.start.y, data.end.x, data.end.y); 
+    line(data.start.x, data.start.y, data.end.x, data.end.y);
 }

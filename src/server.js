@@ -11,14 +11,13 @@ let socket = require('socket.io');
 let io = socket(server);
 io.sockets.on('connection', newConnection);
 
-let crypto = require("crypto");
-
+let crypto = require('crypto');
 
 const rooms = new Map();
 
 function newConnection(socket) {
     let roomId = socket.id;
-    console.log('new connection: ' + socket.id);
+    console.log('new connection:', socket.id);
 
     socket.on('room', (data) => {
         if (!rooms.has(data)) {
@@ -26,20 +25,34 @@ function newConnection(socket) {
             rooms.set(roomId, {
                 users: new Set([socket.id]),
                 lines: new Array(),
-                background: null
+                background: null,
             });
             socket.join(roomId);
-            socket.emit('path', "/" + roomId);
-            console.log(socket.id + " connected to " + roomId 
-            + " with " + rooms.get(roomId).users.size + " users");
+            socket.emit('path', '/' + roomId);
+            console.log(
+                socket.id,
+                'connected to',
+                roomId,
+                'with',
+                rooms.get(roomId).users.size,
+                'users'
+            );
         } else {
             roomId = data;
             rooms.get(roomId).users.add(socket.id);
             socket.join(roomId);
-            console.log(socket.id + " connected to " + roomId 
-            + " with " + rooms.get(roomId).users.size + " users");
-            socket.emit('canvas', {lines: rooms.get(roomId).lines,
-                                 background: rooms.get(roomId).background});
+            console.log(
+                socket.id,
+                'connected to',
+                roomId,
+                'with',
+                rooms.get(roomId).users.size,
+                'users'
+            );
+            socket.emit('canvas', {
+                lines: rooms.get(roomId).lines,
+                background: rooms.get(roomId).background,
+            });
             console.log('sent lines');
         }
         console.log('rooms: ' + rooms.size);
@@ -50,10 +63,10 @@ function newConnection(socket) {
             rooms.get(roomId).users.delete(socket.id);
             if (rooms.get(roomId).users.size == 0) {
                 rooms.delete(roomId);
-                console.log('close room ' + roomId);
+                console.log('close room', roomId);
             }
         }
-        console.log('rooms: ' + rooms.size);
+        console.log('rooms:', rooms.size);
     });
 
     // receiving info about new line from client and sending it to all other clients
@@ -61,7 +74,7 @@ function newConnection(socket) {
         if (rooms.has(roomId)) {
             rooms.get(roomId).lines.push(data);
         }
-        socket.to(roomId).emit("draw", data);
+        socket.to(roomId).emit('draw', data);
     });
 
     socket.on('clearAll', () => {
@@ -69,15 +82,16 @@ function newConnection(socket) {
             rooms.get(roomId).lines = [];
         }
         socket.to(roomId).emit('clearAll');
-    })
+    });
 
     socket.on('background', (data) => {
         console.log('background changed');
         if (rooms.has(roomId)) {
             rooms.get(roomId).background = data;
         }
-        io.to(roomId).emit('canvas', {lines: rooms.get(roomId).lines,
-                        background: data});
-    })
-
+        io.to(roomId).emit('canvas', {
+            lines: rooms.get(roomId).lines,
+            background: data,
+        });
+    });
 }
