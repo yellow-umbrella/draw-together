@@ -26,37 +26,26 @@ function initUI() {
 
 function initSockets() {
     socket = io.connect(window.location.host);
+    let path = processPath();
+
     socket.on('draw', newDrawing);
 
-    let path = window.location.pathname;
-    if (path.length > 0) {
-        path = path.slice(1);
-    }
-    socket.emit('room', path);
-
     socket.on('path', (data) => {
-        let url = `${window.location.protocol}//${window.location.host}${data}`;
-        window.history.pushState({}, '', url);
+        updatePath(data);
     });
 
     socket.on('canvas', (data) => {
-        if (data.background != null) {
-            background(data.background);
-            UI.backgroundClrPicker.value = data.background;
-        }
-        data.lines.forEach((line) => {
-            newDrawing(line);
-        });
+        changeBackground(data);
+        redrawLines(data);
     });
 
     socket.on('clearAll', () => {
-        background(UI.backgroundClrPicker.value);
+        clearAll();
     });
 }
 
 function clearAll() {
     background(UI.backgroundClrPicker.value);
-    socket.emit('clearAll');
 }
 
 function updateBackground() {
@@ -103,11 +92,38 @@ function newDrawing(data) {
     } else {
         stroke(data.color);
     }
+
     strokeWeight(data.width);
     line(data.start.x, data.start.y, data.end.x, data.end.y);
 }
 
+function changeBackground(data) {
+    if (data.background != null) {
+        background(data.background);
+        UI.backgroundClrPicker.value = data.background;
+    }
+}
+
+function redrawLines(data) {
+    data.lines.forEach((line) => {
+        newDrawing(line);
+    });
+}
+
+function updatePath(data) {
+    let url = `${window.location.protocol}//${window.location.host}${data}`;
+    window.history.pushState({}, '', url);
+}
+
+function processPath() {
+    let path = window.location.pathname;
+    if (path.length > 0) {
+        path = path.slice(1);
+    }
+    socket.emit('room', path);
+    return path;
+}
+
 function saveImage() {
-    saveCanvas(picture.canvas, 'image', 'jpg');
-    console.log('saved');
+    saveCanvas(picture.canvas, 'Your_beautiful_drawing', 'jpg');
 }
