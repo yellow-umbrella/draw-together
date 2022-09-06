@@ -40,12 +40,13 @@ function initSockets() {
     });
 
     socket.on('clearAll', () => {
-        clearAll();
+        background(UI.backgroundClrPicker.value);
     });
 }
 
 function clearAll() {
     background(UI.backgroundClrPicker.value);
+    socket.emit('clearAll');
 }
 
 function updateBackground() {
