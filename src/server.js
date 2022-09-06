@@ -74,7 +74,7 @@ function newConnection(socket) {
         if (rooms.has(roomId)) {
             rooms.get(roomId).lines.push(data);
         }
-        socket.to(roomId).emit('draw', data);
+        io.to(roomId).emit('draw', data);
     });
 
     socket.on('clearAll', () => {
