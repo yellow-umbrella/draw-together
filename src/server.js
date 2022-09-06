@@ -15,6 +15,8 @@ let crypto = require('crypto');
 
 const rooms = new Map();
 
+const timeToClose = 1000 * 60 * 60; // 1 hour in milliseconds
+
 function newConnection(socket) {
     let roomId = socket.id;
     console.log('new connection:', socket.id);
@@ -26,6 +28,7 @@ function newConnection(socket) {
                 users: new Set([socket.id]),
                 lines: new Array(),
                 background: null,
+                timeout: null,
             });
             socket.join(roomId);
             socket.emit('path', '/' + roomId);
@@ -40,6 +43,10 @@ function newConnection(socket) {
         } else {
             roomId = data;
             rooms.get(roomId).users.add(socket.id);
+            if (rooms.get(roomId).timeout != null) {
+                clearTimeout(rooms.get(roomId).timeout);
+                rooms.get(roomId).timeout = null;
+            }
             socket.join(roomId);
             console.log(
                 socket.id,
@@ -62,11 +69,14 @@ function newConnection(socket) {
         if (rooms.has(roomId)) {
             rooms.get(roomId).users.delete(socket.id);
             if (rooms.get(roomId).users.size == 0) {
-                rooms.delete(roomId);
-                console.log('close room', roomId);
+                console.log('closing room', roomId);
+                rooms.get(roomId).timeout = setTimeout(
+                    deleteRoom,
+                    timeToClose,
+                    roomId
+                );
             }
         }
-        console.log('rooms:', rooms.size);
     });
 
     // receiving info about new line from client and sending it to all other clients
@@ -74,7 +84,7 @@ function newConnection(socket) {
         if (rooms.has(roomId)) {
             rooms.get(roomId).lines.push(data);
         }
-        socket.to(roomId).emit('draw', data);
+        io.to(roomId).emit('draw', data);
     });
 
     socket.on('clearAll', () => {
@@ -94,4 +104,12 @@ function newConnection(socket) {
             background: data,
         });
     });
+}
+
+function deleteRoom(roomId) {
+    if (rooms.has(roomId)) {
+        rooms.delete(roomId);
+        console.log('close room', roomId);
+        console.log('rooms:', rooms.size);
+    }
 }

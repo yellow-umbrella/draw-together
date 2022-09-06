@@ -89,7 +89,6 @@ function mouseDragged() {
         },
     };
 
-    newDrawing(data);
     socket.emit('draw', data);
 
     picture.prevCoord = {
