@@ -106,3 +106,8 @@ function newDrawing(data) {
     strokeWeight(data.width);
     line(data.start.x, data.start.y, data.end.x, data.end.y);
 }
+
+function saveImage() {
+    saveCanvas(picture.canvas, 'image', 'jpg');
+    console.log('saved');
+}
