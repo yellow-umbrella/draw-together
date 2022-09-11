@@ -45,7 +45,7 @@ function newConnection(socket) {
 }
 
 function disconnectUser(roomId) {
-    if (rooms.has(roomId)) {
+    if (roomExsists(roomId)) {
         rooms.get(roomId).users.delete(socket.id);
 
         if (rooms.get(roomId).users.size == 0) {
@@ -61,7 +61,7 @@ function disconnectUser(roomId) {
 }
 
 function draw(roomId, data) {
-    if (rooms.has(roomId)) {
+    if (roomExsists(roomId)) {
         rooms.get(roomId).lines.push(data);
     }
 
@@ -69,7 +69,7 @@ function draw(roomId, data) {
 }
 
 function clearAllStuff(socket, roomId) {
-    if (rooms.has(roomId)) {
+    if (roomExsists(roomId)) {
         rooms.get(roomId).lines = [];
     }
 
@@ -79,7 +79,7 @@ function clearAllStuff(socket, roomId) {
 function changeBackground(roomId, data) {
     ConsoleLog.backgroundChange();
 
-    if (rooms.has(roomId)) {
+    if (roomExsists(roomId)) {
         rooms.get(roomId).background = data;
     }
 }
@@ -92,7 +92,7 @@ function redrawLines(roomId, data) {
 }
 
 function deleteRoom(roomId) {
-    if (rooms.has(roomId)) {
+    if (roomExsists(roomId)) {
         rooms.delete(roomId);
 
         ConsoleLog.closeRoom(roomId);
