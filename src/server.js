@@ -147,7 +147,7 @@ function roomProcess(socket, data) {
         addUserToRoom(socket, roomId);
         loadCanvasToUser(socket, roomId);
     } else {
-        roomId = crypto.randomBytes(10).toString('base32');
+        roomId = crypto.randomBytes(10).toString('hex');
         createRoom(socket, roomId);
     }
     ConsoleLog.roomsCount();
