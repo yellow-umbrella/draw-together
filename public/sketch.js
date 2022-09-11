@@ -127,5 +127,5 @@ function processPath() {
 }
 
 function saveImage() {
-    saveCanvas(picture.canvas, 'Your_beautiful_drawing', 'jpg');
+    saveCanvas(picture.canvas, 'My_beautiful_drawing', 'jpg');
 }
