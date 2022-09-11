@@ -9,7 +9,8 @@ function setup() {
 }
 
 function initPicture() {
-    picture.canvas = createCanvas(700, 700);
+    picture.canvas = createCanvas(1000, 560);
+    picture.canvas.style('border', '3px solid #000000');
     picture.prevCoord = null;
     background(UI.backgroundClrPicker.value);
 }
